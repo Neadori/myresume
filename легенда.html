@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Андрей Гульдеев | Fullstack QA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Возвращаем черно-зеленую палитру */
+            --bg-color: #050505;
+            --text-color: #a9b7c6;
+            --accent-color: #00ff41;
+            --border-color: rgba(34, 34, 34, 0.6);
+            --card-bg: rgba(10, 10, 10, 0.75);
+            --glow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 0 20px;
+            overflow-x: hidden;
+            /* Базовый градиент остаётся под canvas */
+            background-color: var(--bg-color);
+            background: radial-gradient(circle at 50% 0%, #0a1f0f 0%, #050505 50%);
+        }
+
+        /* === НОВЫЙ ДИНАМИЧЕСКИЙ ФОН === */
+        #bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Эффект матового стекла */
+        .glass-panel {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Уменьшен отступ (убрано min-height: 100vh) */
+        header {
+            padding: 100px 0 60px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .hero-details {
+            margin: 20px 0;
+            color: #888;
+            font-size: 0.95rem;
+        }
+
+        .hero-details span {
+            border-right: 1px solid #444;
+            padding: 0 10px;
+        }
+
+        .hero-details span:first-child {
+            padding-left: 0;
+        }
+
+        .hero-details span:last-child {
+            border-right: none;
+        }
+
+        .typewriter-text {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            min-height: 1.6em;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--accent-color);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        h2 {
+            font-size: 2rem;
+            color: #fff;
+            margin: 60px 0 30px;
+            border-left: 4px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
+        /* Обо мне */
+        .about-section {
+            padding: 30px;
+            font-size: 1.05rem;
+        }
+
+        .about-section p {
+            margin-bottom: 15px;
+        }
+
+        .about-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Секция Скиллов */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .skill-item {
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .skill-item:hover {
+            transform: translateY(-3px);
+            border-color: rgba(0, 255, 65, 0.4);
+            box-shadow: var(--glow);
+        }
+
+        .skill-bar {
+            height: 3px;
+            background: #222;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0;
+            transition: width 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            color: var(--accent-color);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Достижения */
+        .achievements {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .ach-card {
+            padding: 30px;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .ach-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-5px);
+            box-shadow: var(--glow);
+        }
+
+        .ach-num {
+            font-size: 3rem;
+            color: #fff;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 10px;
+            text-shadow: var(--glow);
+        }
+
+        /* Опыт работы */
+        .job {
+            margin-bottom: 30px;
+            padding: 30px;
+            transition: 0.5s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .job.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .job-title {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .job-title span {
+            color: var(--accent-color);
+        }
+
+        .job-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .job-project {
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #ccc;
+        }
+
+        .job-duties {
+            margin-top: 15px;
+            list-style-type: none;
+        }
+
+        .job-duties li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+
+        .job-duties li::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        /* Контакты */
+        .contact-box {
+            padding: 50px;
+            text-align: center;
+            margin-bottom: 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .contact-link {
+            display: inline-block;
+            font-size: 1.1rem;
+            margin: 15px 20px;
+            color: #fff;
+            text-decoration: none;
+            transition: 0.3s;
+            border-bottom: 1px dashed transparent;
+        }
+
+        .contact-link:hover {
+            color: var(--accent-color);
+            border-bottom: 1px dashed var(--accent-color);
+        }
+
+        .btn-contact {
+            padding: 12px 25px;
+            background: transparent;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .btn-contact:hover {
+            background: var(--accent-color);
+            color: #000;
+            box-shadow: var(--glow);
+        }
+
+        @media (max-width: 600px) {
+            .job-header {
+                flex-direction: column;
+            }
+
+            .job-date {
+                margin-top: 5px;
+            }
+
+            .contact-link {
+                display: block;
+                margin: 15px 0;
+            }
+
+            .hero-details span {
+                border: none;
+                display: block;
+                padding: 5px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ДИНАМИЧЕСКИЙ ФОН (canvas) -->
+    <canvas id="bg"></canvas>
+
+    <div class="container">
+        <header id="hero">
+            <h1>Андрей Гульдеев</h1>
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <span style="color: #666; margin-right: 10px;">Role:</span>
+                <div class="typewriter-text" id="typewriter"></div>
+                <div class="cursor"></div>
+            </div>
+            <div class="hero-details">
+                <span>📍 Москва, Россия</span>
+                <span>🕒 Опыт: 4 года</span>
+                <span>💻 Формат: Удаленно</span>
+            </div>
+            <div>
+                <a href="#contacts" class="btn-contact">Инициировать контакт</a>
+            </div>
+        </header>
+
+        <section id="about">
+            <h2>Обо мне</h2>
+            <div class="about-section glass-panel">
+                <p>QA Engineer с полным циклом тестирования в высоконагруженных банковских продуктах.</p>
+                <p>Сочетаю глубокую экспертизу в ручном E2E-тестировании Middle-уровня с разработкой надежных автотестов
+                    на Python для регресса.</p>
+                <p>Активно развиваюсь как full-stack QA-инженер: усиливаю техническую базу в автоматизации (Python-стек,
+                    CI/CD, инфраструктура Docker/K8s) и углубляю знания в архитектуре сложных микросервисных
+                    бизнес-процессов.</p>
+            </div>
+        </section>
+
+        <section id="skills">
+            <h2>Технологический стек</h2>
+            <div class="skills-grid">
+                <div class="skill-item glass-panel">Python / Pytest <div class="skill-bar">
+                        <div class="skill-progress" data-width="85%"></div>
+                    </div>
+                </div>
+                <div class="skill-item glass-panel">API (REST / Postman) <div class="skill-bar">
+                        <div class="skill-progress" data-width="95%"></div>
+                    </div>
+                </div>
+                <div class="skill-item glass-panel">PostgreSQL / MySQL <div class="skill-bar">
+                        <div class="skill-progress" data-width="80%"></div>
+                    </div>
+                </div>
+                <div class="skill-item glass-panel">Docker / K8s <div class="skill-bar">
+                        <div class="skill-progress" data-width="70%"></div>
+                    </div>
+                </div>
+                <div class="skill-item glass-panel">Apache Kafka <div class="skill-bar">
+                        <div class="skill-progress" data-width="75%"></div>
+                    </div>
+                </div>
+                <div class="skill-item glass-panel">CI/CD (GitLab / Jenkins) <div class="skill-bar">
+                        <div class="skill-progress" data-width="70%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-panel" style="padding: 20px;">
+                <p style="color: #fff; margin-bottom: 10px;">Инструменты & Фреймворки:</p>
+                <div class="tags">
+                    <span class="tag">Python</span> <span class="tag">Pytest</span> <span class="tag">Requests</span>
+                    <span class="tag">Allure</span> <span class="tag">Swagger/OpenAPI</span> <span
+                        class="tag">Redis</span>
+                    <span class="tag">Kibana / ELK</span> <span class="tag">Jira</span> <span class="tag">TestIT /
+                        TestRail</span>
+                    <span class="tag">Git</span> <span class="tag">Linux / SSH</span> <span class="tag">Figma</span>
+                </div>
+            </div>
+        </section>
+
+        <section id="achievements">
+            <h2>Метрики & Импакт</h2>
+            <div class="achievements">
+                <div class="ach-card glass-panel">
+                    <span class="ach-num">-30%</span>
+                    <p>времени цикла "QA-Dev-QA" за счет внедрения стандартов глубокого описания дефектов (трейсы
+                        Kibana, Kafka, SQL)</p>
+                </div>
+                <div class="ach-card glass-panel">
+                    <span class="ach-num">-20%</span>
+                    <p>времени на регресс-тестирование за счет покрытия ключевых API-сценариев автотестами на Python</p>
+                </div>
+                <div class="ach-card glass-panel">
+                    <span class="ach-num">25%</span>
+                    <p>критичных багов отловлено до релиза благодаря внедрению практик Shift-Left тестирования</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience">
+            <h2>Опыт работы</h2>
+
+            <div class="job glass-panel">
+                <div class="job-header">
+                    <div class="job-title">Fullstack QA Engineer <span>@ ВТБ</span></div>
+                    <div class="job-date">Окт 2023 — Настоящее время</div>
+                </div>
+                <div class="job-project">Проект: веб-приложение для операторов колл-центра ВТБ (объединение систем банка
+                    в одном интерфейсе).</div>
+                <div class="tags" style="margin-bottom: 15px;">
+                    <span class="tag">Python</span><span class="tag">Pytest</span><span class="tag">Requests</span><span
+                        class="tag">Kafka</span><span class="tag">K8s</span><span class="tag">PostgreSQL</span>
+                </div>
+                <ul class="job-duties">
+                    <li>Проведение E2E-тестирования бизнес-сценариев (счета, переводы) с проверкой данных от внешних
+                        сервисов.</li>
+                    <li>Тестирование REST API (Postman), эмуляция запросов смежных систем, контроль API-контрактов
+                        (Swagger).</li>
+                    <li>Создание и поддержка автотестов на Python (Pytest + Requests) для REST API с интеграцией в
+                        Allure и GitLab CI.</li>
+                    <li>Мониторинг событий в топиках Apache Kafka внутри Kubernetes-кластера.</li>
+                    <li>Анализ логов в Kibana, RCA сбоев, работа в Linux-окружении (SSH).</li>
+                    <li>Написание SQL-запросов (JOIN, агрегатные функции) в PostgreSQL для сверки транзакций.</li>
+                    <li>Валидация UI/UX: соответствие макетам Figma, проверка State Transition заявок.</li>
+                </ul>
+            </div>
+
+            <div class="job glass-panel">
+                <div class="job-header">
+                    <div class="job-title">QA Engineer <span>@ RoamHome</span></div>
+                    <div class="job-date">Янв 2022 — Янв 2023</div>
+                </div>
+                <div class="job-project">Проект: Система для поиска и бронирования жилья по всей России.</div>
+                <div class="tags" style="margin-bottom: 15px;">
+                    <span class="tag">Manual QA</span><span class="tag">API</span><span class="tag">MySQL</span><span
+                        class="tag">ELK</span><span class="tag">TestRail</span>
+                </div>
+                <ul class="job-duties">
+                    <li>Функциональное и исследовательское ручное тестирование новых фич и баг-фиксов.</li>
+                    <li>Тестирование бэкенд-сервисов (Java/Python/Node.js) через Postman.</li>
+                    <li>Мониторинг логов в ELK и выполнение SQL-запросов к MySQL для проверки целостности данных.</li>
+                    <li>Управление тест-кейсами в TestRail: создание модульной структуры и шаблонов.</li>
+                    <li>Анализ UI/UX и выявление проблем юзабилити платформы.</li>
+                    <li>Подготовка детализированных баг-репортов в Jira и тесное взаимодействие с командой.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="education">
+            <h2>Образование</h2>
+            <div class="glass-panel" style="padding: 25px;">
+                <h3 style="color: #fff; margin-bottom: 5px;">Колледж "Подмосковье"</h3>
+                <p style="color: #888;">Среднее специальное образование • 2020</p>
+            </div>
+        </section>
+
+        <section id="contacts">
+            <h2>Связь</h2>
+            <div class="contact-box glass-panel">
+                <p style="margin-bottom: 20px; font-size: 1.1rem; color: #ccc;">Открыт к обсуждению сложных технических
+                    вызовов.</p>
+                <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+                    <a href="https://t.me/Guldevandrey" target="_blank" class="contact-link">Telegram: @Guldevandrey</a>
+                    <a href="mailto:andrejguldev@gmail.com" class="contact-link">andrejguldev@gmail.com</a>
+                    <a href="tel:+79102383343" class="contact-link">+7 (910) 238-33-43</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Печатная машинка
+        const text = "Fullstack QA Engineer";
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                document.getElementById('typewriter').textContent += text.charAt(i);
+                i++;
+                setTimeout(type, 100);
+            }
+        }
+
+        // Анимация при скролле
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // Запуск прогресс-баров
+                    const progress = entry.target.querySelectorAll('.skill-progress');
+                    progress.forEach(p => {
+                        setTimeout(() => { p.style.width = p.dataset.width; }, 200);
+                    });
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.job, #skills, #achievements, #about').forEach(el => observer.observe(el));
+
+        window.onload = type;
+
+        // =============================================
+        // КРАСИВЫЙ ДИНАМИЧЕСКИЙ ФОН (спокойный, не режет глаза)
+        // =============================================
+        const canvas = document.getElementById('bg');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const particleCount = 68; // оптимально для красоты и производительности
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.55; // очень медленное движение
+                this.vy = (Math.random() - 0.5) * 0.55;
+                this.radius = Math.random() * 1.6 + 0.9;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // мягкое отражение от краёв
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 255, 65, 0.75)';
+                ctx.fill();
+            }
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 135) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(0, 255, 65, ${0.18 * (1 - distance / 135)})`;
+                        ctx.lineWidth = 0.65;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateBackground() {
+            // мягкий след (не стирает полностью — создаёт атмосферу)
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.065)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            connectParticles();
+            requestAnimationFrame(animateBackground);
+        }
+
+        // Инициализация фона
+        function initBackground() {
+            resizeCanvas();
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+            animateBackground();
+        }
+
+        // Запуск фона сразу (независимо от onload)
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+        });
+
+        // Запускаем фон
+        initBackground();
+    </script>
+</body>
+
+</html>
